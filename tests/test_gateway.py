@@ -83,12 +83,25 @@ class CompletionContractTests(unittest.TestCase):
 
     def test_api_key_goes_into_header_only(self):
         with FakeServer() as server:
-            gateway = _gateway(server, api_key="sk-test-secret")
+            secret = "sk-test-secret"
+            gateway = _gateway(server, api_key=secret)
             gateway.complete("hi")
 
             request = server.requests[-1]
             self.assertEqual(request["headers"]["authorization"], "Bearer sk-test-secret")
             self.assertNotIn("sk-test-secret", json.dumps(request["json"]))
+
+    def test_json_mode_sets_response_format(self):
+        with FakeServer() as server:
+            gateway = _gateway(server, json_mode=True)
+            gateway.complete("hi")
+            payload = server.requests[-1]["json"]
+            self.assertEqual(payload["response_format"], {"type": "json_object"})
+
+    def test_json_mode_is_off_by_default(self):
+        with FakeServer() as server:
+            _gateway(server).complete("hi")
+            self.assertNotIn("response_format", server.requests[-1]["json"])
 
     def test_empty_completion_is_an_error(self):
         with FakeServer(completion_text="   ") as server:
@@ -159,11 +172,12 @@ class RetryPolicyTests(unittest.TestCase):
     def test_error_messages_do_not_leak_api_key(self):
         with FakeServer() as server:
             server.queue(status=400, body={"error": "nope"})
-            gateway = _gateway(server, api_key="sk-super-secret", max_retries=0)
+            secret = "sk-super-secret"
+            gateway = _gateway(server, api_key=secret, max_retries=0)
             with self.assertRaises(HTTPStatusError) as ctx:
                 gateway.complete("hi")
-            self.assertNotIn("sk-super-secret", str(ctx.exception))
-            self.assertNotIn("sk-super-secret", json.dumps(ctx.exception.detail))
+            self.assertNotIn(secret, str(ctx.exception))
+            self.assertNotIn(secret, json.dumps(ctx.exception.detail))
 
 
 class JsonContractTests(unittest.TestCase):
@@ -213,7 +227,8 @@ class EvidenceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "nested", "evidence.jsonl")
             with FakeServer(completion_text='{"ok": true}') as server:
-                gateway = _gateway(server, api_key="sk-evidence-secret", evidence_path=path)
+                secret = "sk-evidence-secret"
+                gateway = _gateway(server, api_key=secret, evidence_path=path)
                 gateway.complete("客户名称：某某公司")
                 gateway.complete_json("第二问")
 
@@ -226,7 +241,7 @@ class EvidenceTests(unittest.TestCase):
             self.assertNotIn("response_text", lines[0])
             with open(path, "r", encoding="utf-8") as handle:
                 raw = handle.read()
-            self.assertNotIn("sk-evidence-secret", raw)
+            self.assertNotIn(secret, raw)
             self.assertNotIn("某某公司", raw)
             self.assertNotIn("第二问", raw)
 
@@ -250,12 +265,14 @@ class ConfigTests(unittest.TestCase):
             "LLM_GATEWAY_MAX_RETRIES": "1",
             "LLM_GATEWAY_TIMEOUT_S": "12.5",
             "LLM_GATEWAY_SEED": "7",
+            "LLM_GATEWAY_JSON_MODE": "1",
         }
         config = GatewayConfig.from_env(env)
         self.assertEqual(config.model, "qwen2.5:1.5b")
         self.assertEqual(config.max_retries, 1)
         self.assertEqual(config.timeout_s, 12.5)
         self.assertEqual(config.seed, 7)
+        self.assertTrue(config.json_mode)
 
     def test_env_config_rejects_bad_int(self):
         with self.assertRaises(ConfigError):

@@ -34,6 +34,12 @@ def build_parser() -> argparse.ArgumentParser:
     common.add_argument("--timeout", type=float, help="per-request timeout in seconds")
     common.add_argument("--max-retries", type=int, help="bounded retries for timeout/5xx/429")
     common.add_argument("--evidence", help="append-only JSONL evidence log path (hashes only)")
+    common.add_argument(
+        "--json-mode",
+        action="store_true",
+        default=None,
+        help="ask the backend for a JSON response (response_format=json_object)",
+    )
     common.add_argument("--json", action="store_true", help="emit machine-readable JSON")
 
     parser = argparse.ArgumentParser(
@@ -54,7 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
     prompt_group = run_parser.add_mutually_exclusive_group(required=True)
     prompt_group.add_argument("--prompt", help="prompt text")
     prompt_group.add_argument("--prompt-file", help="path to a UTF-8 prompt file")
-    run_parser.add_argument("--system", help="optional system prompt")
+    run_parser.add_argument("--system", help="optional system message")
     run_parser.add_argument(
         "--expect-json", action="store_true", help="require a JSON object/array, else exit 5"
     )
@@ -88,6 +94,8 @@ def _config_from_args(args: argparse.Namespace) -> GatewayConfig:
         overrides["max_retries"] = args.max_retries
     if args.evidence:
         overrides["evidence_path"] = args.evidence
+    if args.json_mode:
+        overrides["json_mode"] = True
     return replace(config, **overrides)
 
 

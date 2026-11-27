@@ -102,6 +102,7 @@ class OpenAICompatibleBackend:
         max_response_bytes: int = 64 * 1024,
         temperature: float = 0.0,
         seed: int | None = None,
+        json_mode: bool = False,
         user_agent: str = USER_AGENT,
     ) -> None:
         if not isinstance(model, str) or not model.strip():
@@ -128,6 +129,7 @@ class OpenAICompatibleBackend:
         self.max_response_bytes = max_response_bytes
         self.temperature = float(temperature)
         self.seed = seed
+        self.json_mode = bool(json_mode)
         self._user_agent = user_agent
         self._host = urllib.parse.urlsplit(self.base_url).netloc
 
@@ -166,6 +168,9 @@ class OpenAICompatibleBackend:
         }
         if self.seed is not None:
             payload["seed"] = self.seed
+        if self.json_mode:
+            # Hint only: the gateway still enforces strict JSON after the call.
+            payload["response_format"] = {"type": "json_object"}
 
         parsed, latency_s, attempts = self._request_json("POST", "/chat/completions", payload)
         return self._parse_completion(parsed, latency_s, attempts)

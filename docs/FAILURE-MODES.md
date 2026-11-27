@@ -6,7 +6,7 @@
 | # | 触发条件 | 异常类 | `code` | CLI 退出码 | 是否重试 | 调用方建议动作 |
 |---|---|---|---|---|---|---|
 | 1 | base_url 非法 / 参数越界 | `ConfigError` | `config_error` | 2 | 否 | 修配置 |
-| 2 | 题干字节超预算 | `PromptTooLarge` | `prompt_too_large` | 2 | 否 | 拆分题干或提高预算（需评审） |
+| 2 | 题面字节超预算 | `PromptTooLarge` | `prompt_too_large` | 2 | 否 | 拆分题面或提高预算（需评审） |
 | 3 | 后端连不上（服务未起/端口错/DNS） | `BackendUnreachable` | `backend_unreachable` | 3 | 是（有界） | 检查 `ollama serve` / `ollama list` |
 | 4 | 超时 | `BackendTimeout` | `backend_timeout` | 3 | 是（有界） | 换小模型 / 缩短 prompt / 调超时 |
 | 5 | 4xx（非 408/429） | `HTTPStatusError` | `http_status_error` | 3 | 否 | 看 `detail.status` 与 `body_excerpt` |
@@ -25,7 +25,7 @@
 | 超时后返回上一次结果 | 串题，审计无法区分 |
 | JSON 解析失败时"用正则硬抠数字" | 幻觉进入确定性层的典型路径 |
 | 把 API Key 写进错误消息 | 泄漏；有测试专门覆盖 |
-| 证据日志落全文题干 | 把审计文件变成客户数据副本 |
+| 证据日志落全文题面 | 把审计文件变成委托方底稿副本 |
 | 对 401/403 自动重试 | 无意义放大，掩盖鉴权问题 |
 
 ## 与主流程的接口约定

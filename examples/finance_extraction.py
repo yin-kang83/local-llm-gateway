@@ -8,11 +8,11 @@
 
 然后：
 
-    python examples/finwiki_adapter.py "甲公司以 1000 万元取得乙公司 30% 股权……"
+    python examples/finance_extraction.py "甲公司以 1000 万元取得乙公司 30% 股权……"
 
 关键纪律（与 deterministic finance 架构一致）：
 
-1. 模型只负责**读**：把题干抽成候选 JSON；
+1. 模型只负责**读**：把题面抽成候选 JSON；
 2. 字段、类型、单位由调用方的契约层校验（这里用 dataclass + Decimal 演示）；
 3. 抽不出来 → 直接失败（``json_extraction_error``），**不猜、不兜底**；
 4. 任何金额计算都不在本文件出现——那是确定性算子的事。
@@ -22,16 +22,17 @@ from __future__ import annotations
 
 import json
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
 
 from local_llm_gateway import Gateway, GatewayConfig, JSONExtractionError
 
 SYSTEM_PROMPT = (
     "你是财务实体抽取器。只输出一行 JSON，不要解释、不要 Markdown 代码块。"
-    "金额输出为十进制字符串（单位：万元），未知字段输出 null。"
-    '字段：{"initial_cost": "万元字符串或null", "ownership_pct": "百分比字符串或null", '
-    '"investee_net_profit": "万元字符串或null", "questions": ["题目要判断的问题"]}'
+    "金额输出为十进制字符串（单位：万元，不带单位字）；百分比输出数字字符串（如 \"30\"，不带百分号）；"
+    "未知字段输出 null。"
+    '字段：{"initial_cost": "万元字符串或null", "ownership_pct": "百分比数字字符串或null", '
+    '"investee_net_profit": "万元字符串或null", "questions": ["需要判断或计算的问题"]}'
 )
 
 EXAMPLE_QUESTION = (
@@ -61,15 +62,18 @@ def _to_decimal(value) -> Decimal | None:
         return None
     if not isinstance(value, str):
         raise ValueError(f"金额必须是十进制字符串，收到 {type(value).__name__}")
+    text = value.strip().rstrip("%").strip()
     try:
-        return Decimal(value)
+        return Decimal(text)
     except InvalidOperation:
         raise ValueError(f"无法解析为 Decimal: {value!r}") from None
 
 
 def extract(question: str, gateway: Gateway | None = None) -> Extraction:
     """抽参并做契约校验；任何一步失败都抛出，不降级。"""
-    gateway = gateway or Gateway(GatewayConfig.from_env())
+    if gateway is None:
+        # json_mode 只是"给后端的提示"，抽出来的结果仍要过下面的契约校验
+        gateway = Gateway(replace(GatewayConfig.from_env(), json_mode=True))
     data, _completion = gateway.complete_json(question, system=SYSTEM_PROMPT)
 
     if not isinstance(data, dict):

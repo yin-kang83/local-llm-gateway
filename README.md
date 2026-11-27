@@ -16,7 +16,7 @@
 
 | 维度 | 云端 API 直连 | 本接入层（本地模型） |
 |---|---|---|
-| 数据边界 | 题干/底稿出厂 | 不出内网，`127.0.0.1` |
+| 数据边界 | 题面/底稿出厂 | 不出内网，`127.0.0.1` |
 | 边际成本 | 按 token 计费 | 一次部署，反复调用 |
 | 离线可用 | 断网即停 | 断网照跑 |
 | 失败行为 | SDK 默认重试/兜底，容易"带回一个编造的答案" | **fail-closed**：拿不到就报错，绝不猜 |
@@ -63,7 +63,8 @@ $env:PYTHONPATH = "<repo>\src"
 llm-gateway check --base-url http://127.0.0.1:11434/v1 --model qwen2.5:1.5b
 
 # 要求严格 JSON：不合契约退出码 5，绝不返回"半截 JSON"
-llm-gateway run --prompt "只输出一行 JSON：{\"amount\": \"100.00\"}" --expect-json
+# 小模型常常"不听话"先答起分录来；--json-mode 给后端一个 JSON 约束提示（实测必要）
+llm-gateway run --prompt "只输出一行 JSON：{\"amount\": \"100.00\"}" --expect-json --json-mode
 
 # 本机测速（延迟分布 + tokens/s + 硬件信息）
 llm-gateway bench --n 5
@@ -82,6 +83,7 @@ llm-gateway bench --n 5
 | `LLM_GATEWAY_MAX_RETRIES` | `2` | 仅对超时 / 408 / 429 / 5xx 生效 |
 | `LLM_GATEWAY_TEMPERATURE` | `0.0` | 抽参默认确定性 |
 | `LLM_GATEWAY_SEED` | 空 | 可选，透传给后端 |
+| `LLM_GATEWAY_JSON_MODE` | `0` | `1` 时向支持的后端发送 `response_format={"type":"json_object"}`（只是提示，仍严格校验） |
 | `LLM_GATEWAY_MAX_PROMPT_BYTES` | `32768` | 客户端侧预算，超限不发请求 |
 | `LLM_GATEWAY_MAX_RESPONSE_BYTES` | `65536` | 响应上限，超限即失败 |
 | `LLM_GATEWAY_EVIDENCE_PATH` | 空 | 证据 JSONL 路径；留空则不写 |
@@ -92,7 +94,7 @@ llm-gateway bench --n 5
 | `code` | 退出码 | 含义 | 调用方应做 |
 |---|---|---|---|
 | `config_error` | 2 | 配置非法（URL/预算/参数） | 修配置，不要重试 |
-| `prompt_too_large` | 2 | 题干超出预算 | 截断/拆分，不放宽闸门 |
+| `prompt_too_large` | 2 | 题面超出预算 | 截断/拆分，不放宽闸门 |
 | `backend_unreachable` | 3 | 连不上后端 | 检查 Ollama 是否 `serve` |
 | `backend_timeout` | 3 | 超时（重试耗尽） | 降并发/加超时/换小模型 |
 | `http_status_error` | 3 | 非重试 4xx 或重试耗尽 | 看 `detail.status` |
@@ -103,7 +105,7 @@ llm-gateway bench --n 5
 
 ### 证据日志（可选）
 
-每次成功调用追加一行 JSONL（默认**只存哈希**，便于审计又不复制客户数据）：
+每次成功调用追加一行 JSONL（默认**只存哈希**，便于审计又不复制委托方底稿）：
 
 ```json
 {"kind":"completion","ts":"...","host":"127.0.0.1:11434","model":"qwen2.5:1.5b",
@@ -116,7 +118,7 @@ JSON 契约失败会额外记一条 `{"kind":"json_extraction_failure", …}`—
 ## 在确定性架构中的位置
 
 ```text
-自然语言题干
+自然语言题面
    │
    ▼
 ┌───────────────────┐   ← 本仓库（感知层，唯一允许"概率"的地方）
@@ -136,6 +138,20 @@ JSON 契约失败会额外记一条 `{"kind":"json_extraction_failure", …}`—
 2. **不合契约即失败**，不"尽量解析"；
 3. **失败可复现**：错误码 + 证据哈希 + 尝试次数都在日志里。
 
+## 本机实测（2026-11-27 · i5-8250U / 7.9 GB / 纯 CPU）
+
+| 场景 | 实测 |
+|---|---|
+| `qwen2.5:1.5b`（Q4_K_M，986 MB）探针 prompt | 延迟 **0.85 s**，吞吐 **14.0 tokens/s** |
+| 长投题面 → 4 字段严格 JSON（热态） | **3.5 s** 左右一次 |
+| 冷启动首次调用（含模型加载） | 10.9 s |
+| 模型进程峰值内存 | 约 **1.16 GB** |
+
+一个必须知道的发现：**小模型会不听话**。同一条"只输出 JSON"的指令，
+不加 `json_mode` 时它直接答了一遍会计分录；加上 `response_format={"type":"json_object"}`
+才稳定输出 JSON。所以本接入层的两条腿缺一不可——**JSON 提示 + 严格校验（fail-closed）**。
+详细数据与复现命令见 [`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md)。
+
 ## 兼容性
 
 任何 OpenAI 兼容端点：
@@ -152,13 +168,13 @@ LM Studio         http://127.0.0.1:1234/v1
 
 - API Key 只放请求头；异常消息、证据日志、CLI 输出均不含 Key（有测试覆盖）；
 - 默认只连接你配置的 `base_url`，无遥测、无其他外联；
-- 证据日志默认只存 SHA-256，不存题干与响应正文；
+- 证据日志默认只存 SHA-256，不存题面与响应正文；
 - 大响应/大 prompt 有硬预算，避免拖死主流程。
 
 ## 测试
 
 ```powershell
-python -m unittest discover -s tests -v     # 49 passed，全程离线（本地假服务器）
+python -m unittest discover -s tests -v     # 51 passed，全程离线（本地假服务器）
 ```
 
 测试覆盖：契约、超时/重试策略、4xx 不重试、响应超限、空补全、JSON 严格性、

@@ -46,6 +46,7 @@ class GatewayConfig:
     max_retries: int = 2
     temperature: float = 0.0
     seed: int | None = None
+    json_mode: bool = False
     max_prompt_bytes: int = 32 * 1024
     max_response_bytes: int = 64 * 1024
     evidence_path: str | None = None
@@ -86,6 +87,7 @@ class GatewayConfig:
             max_retries=_as_int("LLM_GATEWAY_MAX_RETRIES", 2),
             temperature=_as_float("LLM_GATEWAY_TEMPERATURE", 0.0),
             seed=_as_int("LLM_GATEWAY_SEED", None) if _get("LLM_GATEWAY_SEED") is not None else None,
+            json_mode=str(_get("LLM_GATEWAY_JSON_MODE", "0")).lower() in {"1", "true", "yes"},
             max_prompt_bytes=_as_int("LLM_GATEWAY_MAX_PROMPT_BYTES", 32 * 1024),
             max_response_bytes=_as_int("LLM_GATEWAY_MAX_RESPONSE_BYTES", 64 * 1024),
             evidence_path=_get("LLM_GATEWAY_EVIDENCE_PATH"),
@@ -134,6 +136,7 @@ class Gateway:
             max_response_bytes=self.config.max_response_bytes,
             temperature=self.config.temperature,
             seed=self.config.seed,
+            json_mode=self.config.json_mode,
         )
 
     # ---------------------------------------------------------------- public
@@ -149,7 +152,7 @@ class Gateway:
         messages: list[dict] = []
         if system is not None:
             if not isinstance(system, str) or not system.strip():
-                raise ConfigError("system prompt must be a non-empty string when given")
+                raise ConfigError("system message must be a non-empty string when given")
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
