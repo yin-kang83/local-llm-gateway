@@ -152,6 +152,25 @@ JSON 契约失败会额外记一条 `{"kind":"json_extraction_failure", …}`—
 才稳定输出 JSON。所以本接入层的两条腿缺一不可——**JSON 提示 + 严格校验（fail-closed）**。
 详细数据与复现命令见 [`docs/LOCAL-SETUP.md`](docs/LOCAL-SETUP.md)。
 
+## 负结果：Prompt 不是契约（实测）
+
+把本接入层接进一条确定性财务流水线后，我们记录到 5 类**真实发生**的模型失败，
+全部被下游闸门拦下、没有一条进入底稿池：
+
+| 模型行为 | 拦它的层 |
+|---|---|
+| 明确要求"只输出 JSON"，它直接答分录文本 | 严格 JSON 抽取 → exit 5 |
+| 金额输出算术表达式 `"1000 + 3000"` | Pydantic Decimal 契约 → 拒收 |
+| 把经营成果编成"借方 2800 / 贷方 0"的不平分录 | 看门狗借贷平衡 → `SystemCollapseException` |
+| 按要求抽出"转回长投减值" | 看门狗会计红线 → `LegalViolationException` |
+| 抽错减值金额导致账面价值为负 | 看门狗结构完整性 → `SystemCollapseException`；事实链 11→11、快照 2→2 |
+
+由此固化四条规则：**场景识别用规则不用小模型；模型不碰算术；fail-closed 不给默认值；
+看门狗必须在写库之前。** 完整的失败清单、每一层的拦截方式与论文可用表述见
+[`docs/NEGATIVE-RESULTS.md`](docs/NEGATIVE-RESULTS.md)。
+
+> 一句话：模型可以抽错，但错数进不了底稿池。
+
 ## 兼容性
 
 任何 OpenAI 兼容端点：

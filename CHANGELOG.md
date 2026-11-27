@@ -29,6 +29,12 @@
 - 发布包：`local-llm-gateway-0.1.0.zip`（git archive of tag `v0.1.0`）+ `SHA256SUMS.txt`；
 - Gitee 为源仓，GitHub 为镜像；MIT。
 
+### Documentation
+
+- `docs/NEGATIVE-RESULTS.md`：把本接入层接入确定性流水线后记录到的 5 类真实模型失败
+  （指令违背 / 结构伪造 / 表达式算术 / 不平分录 / 错金额导致账面为负）及每层闸门的拦截结果，
+  并给出"Prompt 不是契约"的设计规则与论文可用表述。
+
 ### Security
 
 - API Key 只进请求头；异常消息、`detail`、证据、CLI 输出均不含 Key（有测试覆盖）；
