@@ -2,7 +2,7 @@
 
 > 一句话：**把"云端大模型 API"换成"本地 Ollama"，协议不变、零依赖、失败即停、每次调用可审计。**
 
-[English summary](#english-summary) · [MIT](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24574389.svg)](https://doi.org/10.5281/zenodo.24574389) · [MIT](LICENSE)
 
 ---
 
@@ -189,6 +189,16 @@ model is only allowed to *read* (extract JSON), never to *compute*. Bad model
 output fails loudly (`json_extraction_error`) instead of being hallucinated
 around. Optional JSONL evidence stores SHA-256 hashes, latency and retry
 counts — not the client's text.
+
+## 引用
+
+```text
+Yin Kang. (2026). local-llm-gateway (v0.1.0) [Computer software]. Zenodo.
+https://doi.org/10.5281/zenodo.24574389
+```
+
+Concept DOI（跨版本引用）：`10.5281/zenodo.24574388` ｜ 仓库：<https://gitee.com/yin-kang83/local-llm-gateway> ·
+镜像：<https://github.com/yin-kang83/local-llm-gateway>
 
 ## 许可
 

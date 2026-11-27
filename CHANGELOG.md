@@ -23,6 +23,12 @@
 - `tools/prepublish_check.py`：出域前自检（密钥/大文件/禁止类型/本地路径/必需文件）；
 - 文档：架构决策、失败模式矩阵、本机部署实测、发布流程（Gitee → GitHub → Zenodo）。
 
+### Release
+
+- Zenodo v0.1.0：version DOI `10.5281/zenodo.24574389`，concept DOI `10.5281/zenodo.24574388`；
+- 发布包：`local-llm-gateway-0.1.0.zip`（git archive of tag `v0.1.0`）+ `SHA256SUMS.txt`；
+- Gitee 为源仓，GitHub 为镜像；MIT。
+
 ### Security
 
 - API Key 只进请求头；异常消息、`detail`、证据、CLI 输出均不含 Key（有测试覆盖）；
