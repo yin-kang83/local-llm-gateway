@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Test / tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Local runtime artifacts (never commit evidence or model files)
+*.db
+*.sqlite
+*.sqlite3
+evidence/
+*.jsonl
+!tests/fixtures/*.jsonl
+
+# Models / weights (this repository ships code only)
+*.gguf
+*.bin
+*.safetensors
+models/
+
+# Secrets / local environment
+.env
+.env.*
+*.key
+*.pem
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

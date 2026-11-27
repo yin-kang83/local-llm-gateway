@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "local-llm-gateway: a local-first, fail-closed OpenAI-compatible LLM gateway"
+abstract: >-
+  A zero-dependency, fail-closed client for any OpenAI-compatible LLM
+  endpoint (Ollama, vLLM, llama.cpp server, LM Studio or a cloud provider).
+  It is intended as the perception layer of deterministic finance
+  architectures: the model may only read (extract JSON), never compute. Bad
+  model output fails loudly instead of being silently repaired. An optional
+  JSONL evidence log records prompt/response SHA-256 hashes, latency and
+  retry counts without storing client text.
+type: software
+authors:
+  - family-names: "Yin"
+    given-names: "Kang"
+license: MIT
+version: 0.1.0
+date-released: "2026-11-27"
+repository-code: "https://gitee.com/yin-kang83/local-llm-gateway"
+keywords:
+  - LLM gateway
+  - Ollama
+  - local-first
+  - offline inference
+  - fail-closed
+  - deterministic finance
+  - audit

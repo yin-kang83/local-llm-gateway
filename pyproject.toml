@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "local-llm-gateway"
+version = "0.1.0"
+description = "Local-first OpenAI-compatible LLM gateway: zero dependency, fail-closed, auditable"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Yin Kang" }]
+keywords = [
+  "llm",
+  "ollama",
+  "local-first",
+  "offline",
+  "openai-compatible",
+  "audit",
+  "fail-closed",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.scripts]
+llm-gateway = "local_llm_gateway.cli:main"
+
+[project.urls]
+Homepage = "https://gitee.com/yin-kang83/local-llm-gateway"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
