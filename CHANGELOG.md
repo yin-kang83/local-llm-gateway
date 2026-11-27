@@ -2,6 +2,25 @@
 
 格式：Keep a Changelog；版本号：语义化版本。
 
+## [0.1.1] - 2026-11-27
+
+### Documentation
+
+- README 新增「负结果：Prompt 不是契约」章节；
+- `docs/NEGATIVE-RESULTS.md`：把本接入层接入确定性财务流水线后实测到的 5 类真实模型失败
+  （指令违背 / 结构伪造（算术表达式） / 不平分录 / 错金额致账面为负 / 会计红线转回），
+  逐条标注拦截层与结果，并给出四条设计规则与论文可用表述；
+- 补上一句可引用的负结果：「json_mode 提高形态合规率，不提高语义正确率」。
+
+### Release
+
+- Zenodo v0.1.1：version DOI `10.5281/zenodo.24574651`；concept DOI `10.5281/zenodo.24574388`；
+- 发布包：`local-llm-gateway-0.1.1.zip`（git archive of tag `v0.1.1`）+ `SHA256SUMS.txt`。
+
+### Changed
+
+- 版本号 0.1.1（文档级发布；代码行为与 0.1.0 一致）。
+
 ## [0.1.0] - 2026-11-27
 
 ### Added

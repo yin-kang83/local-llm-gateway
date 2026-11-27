@@ -1,4 +1,4 @@
-"""CLI behaviour tests: exit codes and safe error output (offline)."""
+﻿"""CLI behaviour tests: exit codes and safe error output (offline)."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ class CliTests(unittest.TestCase):
     def test_version(self):
         code, out, _ = _run_cli(["version", "--json"])
         self.assertEqual(code, 0)
-        self.assertEqual(json.loads(out)["version"], "0.1.0")
+        self.assertEqual(json.loads(out)["version"], "0.1.1")
 
     def test_check_success_is_zero_and_json(self):
         with FakeServer(models=["fake-model"]) as server:

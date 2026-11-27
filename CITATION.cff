@@ -14,16 +14,19 @@ authors:
   - family-names: "Yin"
     given-names: "Kang"
 license: MIT
-version: 0.1.0
+version: 0.1.1
 date-released: "2026-11-27"
-doi: "10.5281/zenodo.24574389"
+doi: "10.5281/zenodo.24574651"
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.24574389"
-    description: "Version DOI (v0.1.0)"
+    value: "10.5281/zenodo.24574651"
+    description: "Version DOI (v0.1.1)"
   - type: doi
     value: "10.5281/zenodo.24574388"
     description: "Concept DOI (all versions)"
+  - type: doi
+    value: "10.5281/zenodo.24574389"
+    description: "Version DOI (v0.1.0, previous version)"
 repository-code: "https://gitee.com/yin-kang83/local-llm-gateway"
 keywords:
   - LLM gateway

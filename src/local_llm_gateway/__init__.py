@@ -1,4 +1,4 @@
-"""local-llm-gateway -- local-first, OpenAI-compatible, fail-closed LLM access.
+﻿"""local-llm-gateway -- local-first, OpenAI-compatible, fail-closed LLM access.
 
 The package intentionally has **zero third-party dependencies**: it talks to
 any OpenAI-compatible endpoint (Ollama, vLLM, llama.cpp server, a cloud
@@ -31,7 +31,7 @@ from .errors import (
 from .extraction import extract_json
 from .gateway import Completion, Gateway, GatewayConfig
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "__version__",

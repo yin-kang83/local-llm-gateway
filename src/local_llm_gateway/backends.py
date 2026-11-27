@@ -1,4 +1,4 @@
-"""OpenAI-compatible HTTP backend (``/v1/chat/completions``).
+﻿"""OpenAI-compatible HTTP backend (``/v1/chat/completions``).
 
 Zero third-party dependencies: this module only uses ``urllib`` from the
 standard library.  It is deliberately small and boring -- the interesting
@@ -41,7 +41,7 @@ from .errors import (
 
 DEFAULT_BASE_URL = "http://127.0.0.1:11434/v1"
 DEFAULT_MODEL = "qwen2.5:1.5b"
-USER_AGENT = "local-llm-gateway/0.1.0"
+USER_AGENT = "local-llm-gateway/0.1.1"
 
 #: Statuses worth retrying: the request may succeed on a later attempt.
 RETRYABLE_STATUS = frozenset({408, 425, 429, 500, 502, 503, 504})
