@@ -1,4 +1,4 @@
-# local-llm-gateway · 本地大模型接入层
+﻿# local-llm-gateway · 本地大模型接入层
 
 > 一句话：**把"云端大模型 API"换成"本地 Ollama"，协议不变、零依赖、失败即停、每次调用可审计。**
 
