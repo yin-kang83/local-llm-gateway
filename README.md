@@ -1,4 +1,4 @@
-﻿# local-llm-gateway · 本地大模型接入层
+# local-llm-gateway · 本地大模型接入层
 
 > 一句话：**把"云端大模型 API"换成"本地 Ollama"，协议不变、零依赖、失败即停、每次调用可审计。**
 
@@ -223,3 +223,8 @@ https://doi.org/10.5281/zenodo.24574651
 ## 许可
 
 MIT © 2026 Yin Kang
+
+[![PyPI](https://img.shields.io/pypi/v/local-llm-gateway.svg)](https://pypi.org/project/local-llm-gateway/)
+[![CI](https://github.com/yin-kang83/local-llm-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/yin-kang83/local-llm-gateway/actions/workflows/ci.yml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24616474.svg)](https://doi.org/10.5281/zenodo.24616474)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)

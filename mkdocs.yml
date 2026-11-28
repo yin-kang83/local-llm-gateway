@@ -1,0 +1,32 @@
+site_name: local-llm-gateway
+site_description: 本地 LLM 网关（Ollama / OpenAI 兼容，fail-closed）
+site_url: https://yin-kang83.github.io/local-llm-gateway/
+repo_url: https://gitee.com/yin-kang83/local-llm-gateway
+repo_name: Gitee
+edit_uri: ""
+
+theme:
+  name: material
+  language: zh
+  palette:
+    scheme: slate
+    primary: indigo
+  features:
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - 首页: index.md
+  - 架构: ARCHITECTURE.md
+  - 本地部署: LOCAL-SETUP.md
+  - 版本与 DOI: RELEASES.md
+  - 负结果: NEGATIVE-RESULTS.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
